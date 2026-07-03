@@ -1,0 +1,5 @@
+deepagents
+tavily-python
+langchain-nebius
+langgraph-checkpoint-sqlite
+python-dotenv

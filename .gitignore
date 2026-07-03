@@ -1,0 +1,25 @@
+# Virtual environment
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Per-run output folders (agent files + checkpoints)
+runs/
+
+# Course lesson materials (kept local)
+lesson/
+
+# Local state / checkpoints
+*.sqlite
+*.sqlite3
+
+# macOS
+.DS_Store
