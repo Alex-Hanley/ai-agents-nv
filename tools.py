@@ -1,5 +1,14 @@
-"""Web search tool (the workers' primary tool) and a tool-call logger."""
+"""Web search tool (the workers' primary tool) and a tool-call logger.
 
+When the ``AGENT_TRACE_DIR`` env var points at a directory, every
+``internet_search`` call (with its query and a compact result summary) is
+appended as one JSONL line to ``<AGENT_TRACE_DIR>/tool_calls.jsonl`` -- used
+by the eval harness to grade individual pipeline stages after the run.
+Persistence lives on the tool function itself (not on the middleware) because
+subagent tool calls do not pass through the parent agent's middleware.
+"""
+
+import json
 import logging
 import os
 from typing import Literal
@@ -26,12 +35,58 @@ def internet_search(
     Use specific, narrow queries. For pricing or funding, prefer the
     competitor's own domain or `topic="finance"`.
     """
-    return tavily_client.search(
+    response = tavily_client.search(
         query,
         max_results=max_results,
         include_raw_content=include_raw_content,
         topic=topic,
     )
+    # Subagent tool calls do not pass through the parent's middleware, so
+    # persist searches at the function level to ensure they always land in the
+    # trace, regardless of which agent invoked them.
+    _persist_search_call(query, max_results, topic, response)
+    return response
+
+
+def _persist_search_call(query, max_results, topic, response):
+    trace_dir = os.environ.get("AGENT_TRACE_DIR")
+    if not trace_dir:
+        return
+    entry = {
+        "tool": "internet_search",
+        "args": {"query": query, "max_results": max_results, "topic": topic},
+        "response": _summarize_for_trace("internet_search", response),
+    }
+    with open(os.path.join(trace_dir, "tool_calls.jsonl"), "a") as f:
+        f.write(json.dumps(entry, default=str) + "\n")
+
+
+def _summarize_for_trace(tool_name, response):
+    """Return a JSON-safe summary of a tool response for the trace log."""
+    payload = getattr(response, "content", response)
+
+    if tool_name == "internet_search" and isinstance(payload, dict):
+        return {
+            "query": payload.get("query"),
+            "results": [
+                {
+                    "title": r.get("title"),
+                    "url": r.get("url"),
+                    "score": r.get("score"),
+                    "content": (r.get("content") or "")[:400],
+                }
+                for r in payload.get("results", [])
+            ],
+        }
+
+    if isinstance(payload, (dict, list)):
+        try:
+            s = json.dumps(payload, default=str)
+        except TypeError:
+            s = str(payload)
+    else:
+        s = str(payload)
+    return s if len(s) <= 800 else s[:799] + "…"
 
 
 @wrap_tool_call
