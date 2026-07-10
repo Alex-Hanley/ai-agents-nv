@@ -64,8 +64,8 @@ fact_checker_subagent = {
 }
 
 
-def build_agent(backend, checkpointer):
-    """Wire the lead agent to its subagents, backend, and checkpointer."""
+def build_agent(backend):
+    """Wire the lead agent to its subagents and backend."""
     return create_deep_agent(
         model=LEAD_MODEL,
         tools=[internet_search],
@@ -77,5 +77,4 @@ def build_agent(backend, checkpointer):
         ],
         middleware=[log_tool_calls],
         backend=backend,
-        checkpointer=checkpointer,
     )
