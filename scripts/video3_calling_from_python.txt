@@ -1,0 +1,170 @@
+VIDEO 3 OF 4 · CALLING A MODEL FROM PYTHON
+AI Agents Course · Module 01
+Target length: 9-11 minutes
+Materials: screencast of notebook 1 (setup cells + Chat Completions sections), model card "use model in code" panel
+Note: this video narrates the code in notebook 1. Exercises stay in the notebook.
+
+======================================================================
+[0:00] INTRO
+[SCREEN: playground, then cut to notebook 1]
+
+Last video ended on a point worth repeating: the playground is for
+evaluating models, not for building with them. Real applications call the
+model from code. That's this entire video.
+
+We'll set up credentials properly, make a first request, take apart what
+comes back, and then hold an actual multi-turn conversation. Everything here
+is notebook 1, sections 7 onward, so you can follow along or watch first and
+run it after.
+
+[0:45] THE API IS OPENAI-COMPATIBLE
+[SCREEN: screencast, model card → "Use model in code" panel]
+
+First, good news. Token Factory's API is OpenAI-compatible.
+
+If you have ever gone through any OpenAI API tutorial, this will be easy for
+you: everything works the same way, and you only change two things, the base
+URL and the model name. That compatibility means the standard openai Python
+package works out of the box, and so does essentially every tutorial and tool
+built for that ecosystem.
+
+You don't even have to write the boilerplate. Every model card has a "use
+model in code" panel with a ready-made snippet. The code in the notebook is
+adapted from exactly this.
+
+[1:45] CREDENTIALS AND THE .ENV FILE
+[SCREEN: screencast, notebook 1 setup section, the .env instructions]
+
+Before the first call, one setup topic that matters beyond this course: where
+your API key lives.
+
+The key never goes in your code. In development, configuration that differs
+between people and machines, and especially secrets, lives outside the source
+in a file called .env. It's a plain text file, one line per value: name,
+equals sign, value. Our line is NEBIUS_API_KEY equals your key.
+
+[SCREEN: screencast, the load_dotenv cell running, "Keys loaded."]
+
+In the notebook, load_dotenv reads that file into environment variables, and
+the code only ever asks the environment. Same code runs on your laptop, a
+teammate's laptop, or a server, and the key never gets committed to git,
+because .env goes straight into .gitignore. If you commit a real key, anyone
+who sees the repo can spend your credits. So: .env file, gitignore, done.
+
+One note for Colab users: Colab doesn't have your .env. Either upload the
+file through Colab's file browser, or store the key in Colab Secrets, the key
+icon on the left, and load it from there. The notebook shows both.
+
+[3:15] ANATOMY OF A REQUEST
+[SCREEN: screencast, notebook, the minimal call cell, BEFORE running]
+
+Now the request itself. A Chat Completions request has two required pieces.
+
+Model: the routing key you copied from the card in the last video.
+
+Messages: the conversation, as a list, where each entry has a role. The
+system role sets how the model should behave. And this is less about giving
+it expertise and more about tone and style: the same question answered by a
+formal analyst persona and by a casual intern persona reads completely
+differently. We'll see that in a minute. The user role is what the human
+says. Your prompts go there. The assistant role is what the model said
+earlier. And there's a tool role, which is the whole subject of the next
+video.
+
+There are also optional sampling parameters, temperature, top_p, max_tokens.
+The defaults are fine, and we're not going to worry about them today.
+
+One idea to hold on to before we run anything: this API is stateless. The
+server remembers nothing between requests. Whatever conversation exists,
+exists because you sent it. That's going to explain everything about the
+multi-turn section.
+
+[4:45] THE FIRST CALL
+[SCREEN: screencast, run the minimal call cell, output appears]
+
+Here's the minimal call. Create the client with the Token Factory base URL
+and the key from the environment. Pass the model, pass the messages, run it.
+
+And there's the answer, printed from response.choices[0].message.content.
+
+[5:15] WHAT CAME BACK: ONE TOUR OF THE RESPONSE
+[SCREEN: screencast, run response.to_json(), scroll the full object slowly]
+
+That content string came out of a bigger object, and it's worth seeing the
+whole thing exactly once. In the notebook we print response.to_json.
+
+Three fields in here are worth remembering.
+
+Content, which you've seen. The answer itself.
+
+Finish_reason, which says why generation stopped. "Stop" means the model
+finished naturally. If you ever see "length," the answer was cut off by a
+token limit. That distinction will save you real debugging time.
+
+And usage, the token counts: how many tokens your prompt was, how many the
+model generated. Remember the two prices from the model card. This field is
+the other half of that calculation, and notebook 3 puts them together.
+
+That's the tour. From here on we print only the content, for readability, and
+you know where everything else lives.
+
+[6:30] SYSTEM PROMPTS: SAME QUESTION, TWO VOICES
+[SCREEN: screencast, run the two-persona cell, both outputs visible]
+
+I claimed the system prompt is mostly about voice. Let's prove it.
+
+Same user question both times: is the specialty coffee market growing? First
+with a system prompt that says formal senior analyst, precise and measured.
+Then with one that says enthusiastic intern, casual, emoji welcome.
+
+[Read a line or two of each output aloud, contrast them.]
+
+Same facts, completely different delivery. When you build an agent, the
+system prompt is where you pin down how it should sound and behave before any
+user types a word.
+
+[7:45] MULTI-TURN: YOU CARRY THE MEMORY
+[SCREEN: screencast, the manual multi-turn cell]
+
+Now conversations. Remember: stateless. If you ask a follow-up question in a
+fresh request, the model has no idea what you're talking about, because
+nothing is stored on the server. So how does chat work? You resend
+everything, every turn.
+
+Watch it fully by hand once. Turn one: we send a system message and a user
+question, name three fast-growing beverage categories, and we get an answer.
+Turn two: we append that answer to our list as an assistant message, append
+our follow-up as a new user message, which of those is cheapest to enter, and
+send the entire list again.
+
+[SCREEN: run it, point at the second answer]
+
+The model answers "which of those" correctly. Not because it remembered.
+Because we sent it the whole conversation, including its own previous answer.
+
+[8:45] THE LOOP
+[SCREEN: screencast, the ask() function cell, run both calls]
+
+That append-and-resend pattern is always the same, so the notebook wraps it
+in a small function. Append the user message, call the API with the full
+history, append the answer, return it. Call it twice and you have a chat.
+
+One consequence to notice, because it comes back in notebook 3: every turn
+resends the whole history, which means every turn pays for all the tokens
+that came before. Long conversations get more expensive per message as they
+grow. Keep that in the back of your mind.
+
+[9:30] OUTRO
+[SCREEN: notebook, scroll to the exercises]
+
+That's the API: credentials in .env, two required fields, a response you can
+read, a voice you can set, and conversations you assemble yourself.
+
+Notebook 1 closes with exercises that use all of this, including one that
+asks you to make the model give the same answer ten times in a row. It's more
+interesting than it sounds.
+
+Next video is the one this module is named for: giving the model a tool, and
+building the loop that runs it. See you there.
+
+[END ~10:15]

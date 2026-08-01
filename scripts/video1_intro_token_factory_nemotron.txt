@@ -1,0 +1,131 @@
+VIDEO 1 OF 4 · INTRO TO TOKEN FACTORY AND NEMOTRON
+AI Agents Course · Module 01
+Target length: 7-8 minutes
+Materials: deck 01_chapter_flow.pptx, deck 02_nemotron_family.pptx, screencast of Token Factory signup + catalog
+Note: hands-on tasks are NOT in this video. Setup steps are pointed at, done in the notebook.
+
+======================================================================
+[0:00] COLD OPEN
+[SCREEN: deck 01, slide 1 (title)]
+
+Welcome to Module 1 of the AI Agents course, built together by NVIDIA and
+Nebius Token Factory. I'm Alex, and over this module we're going to go from
+zero to a language model that can use a tool.
+
+That phrase, "use a tool," is the core of this whole course. An agent is a
+model that can do things, not just say things. This module builds the
+smallest possible version of that, and every later module scales it up.
+
+[0:45] THE MODULE MAP
+[SCREEN: deck 01, slide 2 (four topics, three notebooks)]
+
+Here's the shape of the module. Four topics.
+
+First, choosing a model. Where models live on Token Factory, and how to read
+a model card so you can pick one deliberately.
+
+Second, calling the model from Python. The Chat Completions API: how requests
+are structured, what comes back, and how conversations work.
+
+Third, the tool call itself. The model asks for an action, your code runs it,
+and the result goes back to the model. We build this by hand so you see every
+moving part.
+
+Fourth, performance and cost. Three latency numbers and one cost formula, so
+you can tell whether what you built is actually usable.
+
+These map onto three notebooks. Topics one and two are notebook 1, the tool
+call is notebook 2, and performance and cost are notebook 3. The notebooks
+are where you actually do the work. These videos are the guided tour.
+
+[2:00] WHAT IS TOKEN FACTORY
+[SCREEN: screencast, tokenfactory.nebius.com landing page]
+
+So what is Token Factory?
+
+Open language models publish their weights. In principle you can download
+them and run them on your own hardware. In practice that takes GPU clusters,
+a serving stack, scaling, monitoring. It's a lot of infrastructure before you
+get your first useful answer.
+
+Token Factory is managed inference. Nebius runs the models, and you send a
+request and get an answer. The whole interface is one URL and one API key.
+
+[SCREEN: screencast, hover over pricing / serverless mention]
+
+In this course we use serverless inference. That means public models, ready
+immediately, billed per token. You pay for exactly what you use, nothing
+while you're idle. There are also dedicated endpoints where you rent GPUs
+directly, but nothing in this course needs that.
+
+That "billed per token" part matters. Every request has a price attached, and
+in notebook 3 we'll learn to calculate it. For now just register the model:
+tokens in, tokens out, and a meter running.
+
+[3:30] THE CATALOG
+[SCREEN: screencast, model catalog page, scroll slowly]
+
+This is the model catalog. Every model on the platform is here: what type it
+is, what it costs, and whether it's available serverless. You'll see models
+from several families. The one we care about is Nemotron.
+
+[4:00] THE NEMOTRON FAMILY
+[SCREEN: deck 02, slide 1 (title)]
+
+Nemotron is NVIDIA's family of open language models, and it's the family we
+use for every example in this course.
+
+[SCREEN: deck 02, slide 2 (what Nemotron is)]
+
+Three things to know about it.
+
+The models are open. The weights are published under an open license, so they
+can be downloaded, studied, and fine-tuned. Later in the course, we'll
+actually do that fine-tuning.
+
+They're trained for agent work. Tool calling and reasoning are trained into
+these models, and those are exactly the two capabilities this whole course is
+built around. That's why they're our running example.
+
+And they're on Token Factory, serverless. No setup beyond the API key you'll
+create in notebook 1.
+
+[5:00] THREE SIZES
+[SCREEN: deck 02, slide 3 (Nano, Super, Ultra)]
+
+The family comes in three sizes: Nano, Super, and Ultra. Size affects three
+things: how fast the model responds, what it costs per token, and how much
+reasoning depth it has.
+
+Nano is the smallest and fastest, and it's the model we use in all three
+notebooks. Six cents per million input tokens, twenty-four cents per million
+output tokens. You can run it all day while you learn and barely see a bill.
+
+Super is the mid-size model, a common production choice when Nano's output
+isn't enough for a task.
+
+Ultra is the largest, with the strongest reasoning, at a dollar in and three
+dollars out per million.
+
+[SCREEN: deck 02, slide 4 (matching model size to the task)]
+
+Which one you'd pick depends on the workload. High-volume everyday tasks,
+drafting, classification, quick answers: Nano handles those well. Complex
+multi-step reasoning where a wrong answer is expensive: that's where Ultra
+earns its price. Super sits between.
+
+You'll make this comparison yourself in the playground, side by side, in the
+next video. The information you need to decide lives on each model's card,
+and reading that card is exactly where we pick up.
+
+[6:45] OUTRO
+[SCREEN: deck 01, slide 2 again, or catalog screencast]
+
+Before the next video: open notebook 1, create your Token Factory account,
+and make an API key. The notebook walks through it step by step, including
+where to store the key safely.
+
+Next video: reading a model card, and testing models in the playground before
+writing a single line of code. See you there.
+
+[END ~7:30]

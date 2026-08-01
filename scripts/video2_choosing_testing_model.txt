@@ -1,0 +1,153 @@
+VIDEO 2 OF 4 · CHOOSING AND TESTING A MODEL
+AI Agents Course · Module 01
+Target length: 8-10 minutes
+Materials: deck 03_model_card.pptx, screencast of Nano model card, screencast of playground (Nano vs Ultra side by side)
+Note: per review, quantization and the tool-calling/reasoning flags are NOT explained here. One forward reference only.
+
+======================================================================
+[0:00] INTRO
+[SCREEN: deck 03, slide 1 (Reading a model card)]
+
+In the last video we met Token Factory and the Nemotron family. Now the
+practical question: you're standing in front of a catalog of models. How do
+you actually choose one?
+
+The answer is the model card. Every model in the catalog has one, and it's
+the page you'll come back to constantly: for the model's identifier, its
+limits, its prices, and what it can do. Think of it like the spec sheet for
+an engine. You read the sheet before you put it in the car.
+
+We'll walk the card for Nemotron 3 Nano, since that's the model the notebooks
+use.
+
+[1:00] OPENING THE CARD
+[SCREEN: screencast, catalog → click Nano → scroll to card]
+
+From the catalog, click into NVIDIA Nemotron 3 Nano and scroll down to the
+card. Everything we cover in the next few minutes is on this one page.
+
+[1:20] FIELD 1: THE ROUTING KEY
+[SCREEN: deck 03, slide 2, then screencast of the key + copy icon on the card]
+
+First field: the routing key, at the top of the endpoint properties.
+
+This string is the model's unique identifier on Token Factory, and it's what
+you pass as the model argument in every API call you make. There's a copy
+icon right next to it. Use it.
+
+Here's why that matters. If you type the key by hand and get one character
+wrong, the API returns "model not found" and nothing else. It won't tell you
+which character is wrong, and these strings are long. Copying from the card
+removes the whole problem. This is genuinely the most common first error
+people hit, so build the habit now.
+
+[2:30] FIELD 2: THE CONTEXT WINDOW
+[SCREEN: deck 03, slide 3, then screencast pointing at the context figure]
+
+Second field: the context window.
+
+This is the total amount of text the model can work with at once, and three
+things share it. Your prompt, the instructions and question you send. The
+conversation history, every earlier turn. And the output, the answer being
+generated right now. All three draw from the same budget.
+
+A useful way to think about it: this is the model's working memory. A bigger
+window means a whole document or a long conversation fits in one go. The
+exact size is listed right here on the card, and it varies between models,
+so it's always worth a look before you plan around it.
+
+[3:45] FIELD 3: PRICING
+[SCREEN: deck 03, slide 4, then screencast of the two prices on the card]
+
+Third field: pricing. And notice there are two prices, not one.
+
+Input tokens are the text you send. The model reads the entire prompt in one
+pass, so input is the cheaper rate. For Nano, six cents per million tokens.
+
+Output tokens are the text the model generates, and it generates them one at
+a time. Each output token is a separate pass through the model, so output is
+priced higher. For Nano, twenty-four cents per million.
+
+Every API response includes a usage field that reports both counts, so you
+always know what a request consumed. In notebook 3 we take these two prices
+and those two counts and compute the exact cost of a request. For today, just
+remember: two rates, and output is the expensive one.
+
+[5:00] FIELD 4: MODALITY
+[SCREEN: deck 03, slide 5]
+
+Fourth field: modality. What goes in, and what comes out.
+
+The Nemotron chat models are text-to-text. Text in, text out. But the catalog
+also has vision models that accept images, and embedding models that output
+vectors instead of sentences, which are used for search. Checking this field
+takes two seconds and tells you immediately whether a model fits your use
+case at all.
+
+You'll also see fields on the card like quantization, and flags for tool
+calling and reasoning. We'll come back to those later in the course, exactly
+when they become relevant. For now you can read past them.
+
+[6:00] FIELD 5: LICENSE
+[SCREEN: deck 03, slide 6]
+
+Last field: the license.
+
+Open-weight models still come with terms. The license covers whether you can
+use the model commercially, whether you can redistribute the weights, and the
+rules around fine-tuning and the model's outputs. If you're building anything
+you plan to ship, read it. It's short, and it answers those questions
+directly.
+
+[6:45] THE PLAYGROUND
+[SCREEN: screencast, Nano card → Go to playground]
+
+So the card tells you what a model is on paper. The playground is where you
+find out how it behaves, before writing any code.
+
+From the model card, click "Go to playground." You get a chat interface with
+the model, plus controls on the left.
+
+[SCREEN: screencast, type the prompt into Nano playground]
+
+Let's give it something with a little reasoning in it. I'll paste this
+prompt: a survey shows 62 percent of respondents prefer Product A and 38
+percent prefer Product B, but the group that prefers A is three times smaller
+in the overall population. Which product actually wins overall?
+
+[SCREEN: screencast, response appears, point at metrics under it]
+
+The answer streams in, and look underneath it. Response time, token counts.
+Those numbers under every response are the model's performance on this exact
+request. We'll name and define them properly in video 4. For now, just notice
+they're here.
+
+[8:00] COMPARING TWO MODELS
+[SCREEN: screencast, same prompt in Ultra playground, side by side or cut between]
+
+Now the useful part. Same prompt, but on Nemotron 3 Ultra.
+
+Two things to compare. First, the answers themselves. Read both. Did the
+bigger model reason more carefully, or just write more? Did Nano get it right
+anyway? Second, the numbers underneath: how many output tokens each model
+spent, and how long each took.
+
+This is your first model evaluation. It's informal, it's just your own eyes,
+but this habit of testing the same prompt on two models and reading both
+answers critically is the foundation for the rigorous evaluation methods
+later in the course. Between two models, the question is never which is
+better in general. It's which is better for this task, at this price.
+
+[9:15] OUTRO
+[SCREEN: deck 03, slide 1, or playground]
+
+That's choosing and testing: read the card, then talk to the model in the
+playground.
+
+One thing the playground is not, though, is a way to build applications. It's
+an evaluation surface. To use a model in real workflows you call it from
+code, and that's exactly what the next video covers: the Token Factory API,
+from Python, from the first request. Notebook 1 has everything from this
+video in hands-on form, including a model card exercise. See you in video 3.
+
+[END ~9:45]
